@@ -1,0 +1,52 @@
+
+# What are the top 100 songs in Latin America? Which countries had these songs in their most streamed tracks in 2021?
+SELECT
+  track_name AS Faixa,
+  SUM(total_streams) AS TotalReproducoes,
+  COUNT(DISTINCT country) AS NumeroPaises,
+  STRING_AGG(DISTINCT country || ',') AS Paises,
+FROM
+  `tcc-usp-esalq-2023.spotify2021.top_songs`
+GROUP BY
+  1
+ORDER BY
+  2 DESC
+LIMIT 100;
+
+# What's the total number of streaming per country and the percentage?
+SELECT
+  country,
+  SUM(total_streams) AS Total,
+  ROUND((SUM(total_streams) / 
+  (SELECT SUM(total_streams) FROM `tcc-usp-esalq-2023.spotify2021.top_songs`)) * 100, 2) AS Percentage
+FROM
+  `tcc-usp-esalq-2023.spotify2021.top_songs`
+GROUP BY
+  country
+ORDER BY 2
+DESC
+
+# Top 100 songs in Brazil
+SELECT
+  track_name as Faixa,
+  SUM(total_streams) as TotalReproducoes,
+FROM
+  `tcc-usp-esalq-2023.spotify2021.top_songs`
+WHERE country = "Brazil"
+GROUP BY
+  1
+ORDER BY
+  2
+DESC
+LIMIT 100
+
+# How many times the song DÁKITI, the most streamed track in Latin America in 2021, was played by country?
+SELECT
+  country AS Pais,
+  total_streams as Reproducoes
+FROM
+  `tcc-usp-esalq-2023.spotify2021.top_songs`
+WHERE
+  track_name = "DÁKITI"
+ORDER BY total_streams DESC
+
