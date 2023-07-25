@@ -1,0 +1,109 @@
+# Adding a new column "subregion" to the table, to be able to classify each London borough:
+SELECT *,
+CASE
+WHEN borough IN ('Camden', 'City of London', 'Islington', 'Kensington and Chelsea', 'Lambeth', 'Southwark', 'Westminster') THEN 'Central'
+WHEN borough IN ('Barking and Dagenham', 'Bexley', 'Greenwich', 'Hackney', 'Havering', 'Lewisham', 'Newham', 'Redbridge', 'Tower Hamlets', 'Waltham Forest') THEN 'East'
+WHEN borough IN ('Barnet', 'Enfield', 'Haringey') THEN 'North'
+WHEN borough IN ('Bromley', 'Croydon', 'Kingston upon Thames', 'Merton', 'Sutton', 'Wandsworth') THEN 'South'
+WHEN borough IN ('Brent', 'Ealing', 'Hammersmith and Fulham', 'Harrow', 'Hillingdon', 'Hounslow', 'Richmond upon Thames') THEN 'West'
+ELSE NULL
+END AS subregion
+FROM `bigquery-public-data.london_crime.crime_by_lsoa`
+LIMIT 10;
+
+# What are the different major category crimes included in this table?
+SELECT distinct(major_category) FROM `bigquery-public-data.london_crime.crime_by_lsoa` LIMIT 1000
+1: Sexual Offences
+2: Violence Against the Person
+3: Drugs
+4: Theft and Handling
+5: Other Notifiable Offences
+6: Robbery
+7: Fraud or Forgery
+8: Criminal Damage
+9: Burglary
+
+# What are the different minor category crimes included in this table?
+SELECT distinct(minor_category) FROM `bigquery-public-data.london_crime.crime_by_lsoa` LIMIT 1000
+1: Rape
+2: Murder
+3: Harassment
+4: Other Drugs
+5: Other Theft
+6: Other Sexual
+7: Wounding/GBH
+8: Common Assault
+9: Going Equipped
+10: Other violence
+11: Drug Trafficking
+12: Offensive Weapon
+13: Other Notifiable
+14: Theft From Shops
+15: Business Property
+16: Personal Property
+17: Counted per Victim
+18: Other Theft Person
+19: Assault with Injury
+20: Possession Of Drugs
+21: Handling Stolen Goods
+22: Other Criminal Damage
+23: Other Fraud & Forgery
+24: Burglary in a Dwelling
+25: Theft From Motor Vehicle
+26: Burglary in Other Buildings
+27: Criminal Damage To Dwelling
+28: Theft/Taking of Pedal Cycle
+29: Theft/Taking Of Motor Vehicle
+30: Criminal Damage To Motor Vehicle
+31: Criminal Damage To Other Building
+32: Motor Vehicle Interference & Tampering
+
+# Total number of crimes in London per year (2008-2016)
+SELECT year, sum(value) FROM `bigquery-public-data.london_crime.crime_by_lsoa` 
+GROUP BY 1
+ORDER BY 1 ASC
+year	f0_
+2008	738641
+2009	717214
+2010	715324
+2011	724915
+2012	737329
+2013	686407
+2014	680183
+2015	711624
+2016	736121
+
+# Total number of crimes in London per borough
+SELECT borough, count(value) FROM `bigquery-public-data.london_crime.crime_by_lsoa` 
+GROUP BY borough
+ORDER BY 2 DESC
+LIMIT 10
+borough	f0_
+Croydon	602100
+Barnet	572832
+Ealing	549396
+Bromley	523908
+Lambeth	519048
+Enfield	511164
+Wandsworth	498636
+Brent	490644
+Lewisham	485136
+Southwark	483300
+
+# What are the top major category crimes in the borough of Ealing?
+SELECT distinct(major_category) AS MajorCategory,
+year AS Year, 
+sum(value) AS Total
+FROM `bigquery-public-data.london_crime.crime_by_lsoa`
+WHERE borough = "Ealing"
+GROUP BY 1, 2
+ORDER BY 2 ASC, 3 DESC
+
+# What are the top minor category crimes in the borough of Ealing?
+SELECT distinct(minor_category) AS MinorCategory,
+year AS Year,
+sum(value) AS Total
+ FROM `bigquery-public-data.london_crime.crime_by_lsoa`
+WHERE borough = "Ealing"
+GROUP BY 1, 2
+ORDER BY 2 ASC, 3 DESC
