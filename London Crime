@@ -1,3 +1,24 @@
+TO ADD: MIN, MAX, AVG, PER SUBREGION, BELOW/ABOVE AVG
+
+QUESITONS
+1) Which London boroughs were included? How many in total?
+2) What are the different major category crimes included in this table?
+3) What are the different minor category crimes included in this table?
+4) What's the total number of crimes in London per year (2008-2016)?
+5) What's total number of crimes in London per borough/per year?
+
+# Which London boroughs were included? How many in total?
+SELECT DISTINCT(borough) 
+FROM `bigquery-public-data.london_crime.crime_by_lsoa`
+ORDER BY 1 ASC
+
+32: Barking and Dagenham, Barnet, Bexley, Brent, Bromley, Camden, City of London, Croydon, Ealing, Enfield,
+Greenwich, Hackney, Hammersmith and Fulham, Haringey, Harrow, Havering, Hillingdon, Hounslow, Islington, Kensington and Chelsea,
+Kingston upon Thames, Lambeth, Lewisham, Merton, Newham, Redbridge, Richmond upon Thames, Southwark, Sutton, Tower Hamlets,
+Waltham Forest, Wandsworth, Westminster
+
+
+
 # Adding a new column "subregion" to the table, to be able to classify each London borough:
 SELECT *,
 CASE
@@ -11,8 +32,11 @@ END AS subregion
 FROM `bigquery-public-data.london_crime.crime_by_lsoa`
 LIMIT 10;
 
+
+
 # What are the different major category crimes included in this table?
 SELECT distinct(major_category) FROM `bigquery-public-data.london_crime.crime_by_lsoa` LIMIT 1000
+
 1: Sexual Offences
 2: Violence Against the Person
 3: Drugs
@@ -23,8 +47,11 @@ SELECT distinct(major_category) FROM `bigquery-public-data.london_crime.crime_by
 8: Criminal Damage
 9: Burglary
 
+
+
 # What are the different minor category crimes included in this table?
 SELECT distinct(minor_category) FROM `bigquery-public-data.london_crime.crime_by_lsoa` LIMIT 1000
+
 1: Rape
 2: Murder
 3: Harassment
@@ -58,10 +85,13 @@ SELECT distinct(minor_category) FROM `bigquery-public-data.london_crime.crime_by
 31: Criminal Damage To Other Building
 32: Motor Vehicle Interference & Tampering
 
+
+
 # Total number of crimes in London per year (2008-2016)
 SELECT year, sum(value) FROM `bigquery-public-data.london_crime.crime_by_lsoa` 
 GROUP BY 1
 ORDER BY 1 ASC
+
 year	f0_
 2008	738641
 2009	717214
@@ -78,6 +108,7 @@ SELECT borough, count(value) FROM `bigquery-public-data.london_crime.crime_by_ls
 GROUP BY borough
 ORDER BY 2 DESC
 LIMIT 10
+
 borough	f0_
 Croydon	602100
 Barnet	572832
@@ -90,6 +121,27 @@ Brent	490644
 Lewisham	485136
 Southwark	483300
 
+
+
+# Total number of crimes in London per borough, per year
+SELECT borough, year, sum(value) 
+FROM `bigquery-public-data.london_crime.crime_by_lsoa` 
+GROUP BY 1, 2
+ORDER BY 1, 2 ASC
+
+borough	year	f0_
+Barking and Dagenham	2008	17656
+Barking and Dagenham	2009	17713
+Barking and Dagenham	2010	17130
+Barking and Dagenham	2011	16686
+Barking and Dagenham	2012	15990
+Barking and Dagenham	2013	15759
+Barking and Dagenham	2014	15426
+Barking and Dagenham	2015	16346
+Barking and Dagenham	2016	16741
+
+
+
 # What are the top major category crimes in the borough of Ealing?
 SELECT distinct(major_category) AS MajorCategory,
 year AS Year, 
@@ -98,6 +150,21 @@ FROM `bigquery-public-data.london_crime.crime_by_lsoa`
 WHERE borough = "Ealing"
 GROUP BY 1, 2
 ORDER BY 2 ASC, 3 DESC
+LIMIT 10
+
+MajorCategory	Year	Total
+Theft and Handling	2008	9562
+Violence Against the Person	2008	7155
+Burglary	2008	3837
+Criminal Damage	2008	3365
+Drugs	2008	3083
+Robbery	2008	1308
+Other Notifiable Offences	2008	410
+Fraud or Forgery	2008	175
+Sexual Offences	2008	52
+Theft and Handling 2009 10119
+
+
 
 # What are the top minor category crimes in the borough of Ealing?
 SELECT distinct(minor_category) AS MinorCategory,
@@ -107,3 +174,52 @@ sum(value) AS Total
 WHERE borough = "Ealing"
 GROUP BY 1, 2
 ORDER BY 2 ASC, 3 DESC
+LIMIT 10
+
+MinorCategory	Year	Total
+Theft From Motor Vehicle	2008	3326
+Possession Of Drugs	2008	2901
+Burglary in a Dwelling	2008	2784
+Other Theft	2008	2675
+Harassment	2008	2371
+Assault with Injury	2008	2121
+Criminal Damage To Motor Vehicle	2008	1668
+Common Assault	2008	1607
+Personal Property	2008	1212
+Burglary in Other Buildings	2008	1053
+
+
+# What were the top 5 minor category crimes in Hammersmith in December 2010?
+SELECT minor_category, value,
+FROM `bigquery-public-data.london_crime.crime_by_lsoa`
+WHERE borough = "Hammersmith and Fulham" AND year = CAST("2010" AS INT64) AND month = CAST("12" AS INT64)
+ORDER BY value DESC
+LIMIT 5
+
+minor_category	value
+Theft From Shops	89
+Other Theft	72
+Possession Of Drugs	39
+Other Theft Person	22
+Other Theft	17
+
+
+
+# What were the top  major category crimes in Westminster in November 2013?
+SELECT distinct(major_category), SUM(value) AS total_crimes
+FROM `bigquery-public-data.london_crime.crime_by_lsoa`
+WHERE borough = "Westminster" AND year = CAST("2013" AS INT64) AND month = CAST("11" AS INT64)
+GROUP BY 1
+ORDER BY total_crimes DESC
+
+major_category	total_crimes
+Theft and Handling	2691
+Violence Against the Person	592
+Drugs	362
+Burglary	324
+Robbery	232
+Criminal Damage	153
+Other Notifiable Offences	66
+Sexual Offences	0
+Fraud or Forgery	0
+
