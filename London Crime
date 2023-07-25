@@ -1,16 +1,18 @@
-TO ADD: MIN, MAX, AVG, PER SUBREGION, BELOW/ABOVE AVG
+The London Crime Data dataset is a large dataset that contains information on over 13 million crimes that took place in London between 2008 and 2016. 
+The dataset is available for download from Kaggle.com.
+
 
 QUESITONS
 1) Which London boroughs were included? How many in total?
 2) What are the different major category crimes included in this table?
 3) What are the different minor category crimes included in this table?
-4) What's the total number of crimes in London per year (2008-2016)?
-5) What's total number of crimes in London per borough/per year?
-6) What's the total number of minor category crimes per subregion?
-7) What's the total number of major category crimes per subregion?
-8) #What are the London boroughs with the highest crime numbers?
-9) #What are the London boroughs with the lowest crime numbers?
-
+4) What are the most common crime categories in London?
+5) What are the crime trends in London over time?
+6) What's total number of crimes in London per borough/per year?
+7) What's the total number of minor category crimes per subregion?
+8) What's the total number of major category crimes per subregion?
+9) #What are the London boroughs with the highest crime numbers?
+10) #What are the London boroughs with the lowest crime numbers?
 
 
 # Which London boroughs were included? How many in total?
@@ -41,7 +43,7 @@ LIMIT 10;
 
 
 # What are the different major category crimes included in this table?
-SELECT distinct(major_category) FROM `bigquery-public-data.london_crime.crime_by_lsoa` LIMIT 1000
+SELECT DISTINCT(major_category) FROM `bigquery-public-data.london_crime.crime_by_lsoa` 
 
 1: Sexual Offences
 2: Violence Against the Person
@@ -56,7 +58,7 @@ SELECT distinct(major_category) FROM `bigquery-public-data.london_crime.crime_by
 
 
 # What are the different minor category crimes included in this table?
-SELECT distinct(minor_category) FROM `bigquery-public-data.london_crime.crime_by_lsoa` LIMIT 1000
+SELECT DISTINCT(minor_category) FROM `bigquery-public-data.london_crime.crime_by_lsoa` LIMIT 1000
 
 1: Rape
 2: Murder
@@ -93,7 +95,26 @@ SELECT distinct(minor_category) FROM `bigquery-public-data.london_crime.crime_by
 
 
 
-# Total number of crimes in London per year (2008-2016)
+# What are the most common crime categories in London?
+SELECT major_category, COUNT(*) AS total_crimes
+FROM `bigquery-public-data.london_crime.crime_by_lsoa`
+GROUP BY major_category
+ORDER BY total_crimes DESC;
+
+major_category	total_crimes
+Theft and Handling	3966300
+Violence Against the Person	3171744
+Criminal Damage	2069172
+Drugs	1179468
+Burglary	1043604
+Robbery	939384
+Other Notifiable Offences	776304
+Fraud or Forgery	236520
+Sexual Offences	108108
+
+
+
+# What are the crime trends in London over time (2008-2016)?
 SELECT year, sum(value) FROM `bigquery-public-data.london_crime.crime_by_lsoa` 
 GROUP BY 1
 ORDER BY 1 ASC
