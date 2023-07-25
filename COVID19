@@ -1,0 +1,20 @@
+# Which countries and territories are part of this dataset?
+SELECT
+  DISTINCT(countries_and_territories)
+FROM
+  `bigquery-public-data.covid19_ecdc_eu.covid_19_geographic_distribution_worldwide`
+ORDER BY
+  1 ASC
+
+# Filtering by country (example: Brazil)
+SELECT
+  *
+FROM
+  `bigquery-public-data.covid19_ecdc_eu.covid_19_geographic_distribution_worldwide`
+WHERE
+  countries_and_territories = "Brazil"
+ORDER BY
+  date
+LIMIT
+  1000
+
