@@ -37,10 +37,10 @@ This was achieved this by using the CASE statement to apply conditions and map b
 # 4) What are the most common crime categories in London?
 # 5) What are the crime trends in London over time?
 # 6) What's total number of crimes in London per borough/per year?
-7) What's the total number of minor category crimes per subregion?
-8) What's the total number of major category crimes per subregion?
-9) What are the London boroughs with the highest crime numbers?
-10) What are the London boroughs with the lowest crime numbers?
+# 7) What's the total number of major category crimes per subregion?
+# 8) What's the total number of minor category crimes per subregion?
+# 9) What are the London boroughs with the highest crime numbers?
+# 10) What are the London boroughs with the lowest crime numbers?
 
 
 ### 1) Which London boroughs were included? How many in total? ###
@@ -79,14 +79,14 @@ ORDER BY 2 DESC;
 
 MajorCategory	                    TotalCrimes
 Theft and Handling	                  2661861
-Violence Against the Person	         1558081
+Violence Against the Person	          1558081
 Burglary	                             754293
-Criminal Damage	                      630938
-Drugs	                                470765
-Robbery	                              258873
-Other Notifiable Offences	            106349
+Criminal Damage	                       630938
+Drugs	                                 470765
+Robbery	                               258873
+Other Notifiable Offences	             106349
 Fraud or Forgery	                       5325
-Sexual Offences	                        1273
+Sexual Offences	                         1273
 
 ### 5) What are the crime trends in London over time (2008-2016)? ###
 SELECT year AS Year, sum(value) AS Total
@@ -123,6 +123,102 @@ Barking and Dagenham	         2014	          15426
 Barking and Dagenham	         2015	          16346
 Barking and Dagenham	         2016	          16741
 
+
+### 7) Major cateogry crimes per subregion ###
+SELECT major_category AS MajorCateogry,
+        sum(value) AS Total,
+CASE
+WHEN borough IN ('Camden', 'City of London', 'Islington', 'Kensington and Chelsea', 'Lambeth', 'Southwark', 'Westminster') THEN 'Central'
+WHEN borough IN ('Barking and Dagenham', 'Bexley', 'Greenwich', 'Hackney', 'Havering', 'Lewisham', 'Newham', 'Redbridge', 'Tower Hamlets', 'Waltham Forest') THEN 'East'
+WHEN borough IN ('Barnet', 'Enfield', 'Haringey') THEN 'North'
+WHEN borough IN ('Bromley', 'Croydon', 'Kingston upon Thames', 'Merton', 'Sutton', 'Wandsworth') THEN 'South'
+WHEN borough IN ('Brent', 'Ealing', 'Hammersmith and Fulham', 'Harrow', 'Hillingdon', 'Hounslow', 'Richmond upon Thames') THEN 'West'
+ELSE NULL
+END AS subregion
+FROM `bigquery-public-data.london_crime.crime_by_lsoa`
+GROUP BY 1,3
+ORDER BY 1 ASC, 2 DESC
+LIMIT 10
+
+MajorCategory	    Total	  subregion
+Burglary	        220831	East
+Burglary	        159573	West
+Burglary	        152615	Central
+Burglary	        125867	South
+Burglary	        95407	  North
+Criminal Damage	  202048	East
+Criminal Damage  	131115	West
+Criminal Damage	  117682	Central
+Criminal Damage	  114310	South
+Criminal Damage	  65783	  North
+
+
+### 8) Minor cateogry crimes per subregion ###
+SELECT minor_category AS MinorCategory,
+        sum(value) AS Total,
+CASE
+WHEN borough IN ('Camden', 'City of London', 'Islington', 'Kensington and Chelsea', 'Lambeth', 'Southwark', 'Westminster') THEN 'Central'
+WHEN borough IN ('Barking and Dagenham', 'Bexley', 'Greenwich', 'Hackney', 'Havering', 'Lewisham', 'Newham', 'Redbridge', 'Tower Hamlets', 'Waltham Forest') THEN 'East'
+WHEN borough IN ('Barnet', 'Enfield', 'Haringey') THEN 'North'
+WHEN borough IN ('Bromley', 'Croydon', 'Kingston upon Thames', 'Merton', 'Sutton', 'Wandsworth') THEN 'South'
+WHEN borough IN ('Brent', 'Ealing', 'Hammersmith and Fulham', 'Harrow', 'Hillingdon', 'Hounslow', 'Richmond upon Thames') THEN 'West'
+ELSE NULL
+END AS subregion
+FROM `bigquery-public-data.london_crime.crime_by_lsoa`
+GROUP BY 1,3
+ORDER BY 1 ASC, 2 DESC
+LIMIT 10
+
+MinorCategory	               Total	subregion
+Assault with Injury	        145881  East
+Assault with Injury	        97150	  Central
+Assault with Injury	        91916	  West
+Assault with Injury	        73010	  South
+Assault with Injury	        43044	  North
+Burglary in Other Buildings	73518	  East
+Burglary in Other Buildings	66660	  Central
+Burglary in Other Buildings	48672	  South
+Burglary in Other Buildings	48347	  West
+Burglary in Other Buildings	25814	  North
+
+
+### 9) What are the London boroughs with the highest crime numbers? ###
+SELECT
+  borough AS LondonBorough,
+  SUM(value) AS Total
+FROM
+  `bigquery-public-data.london_crime.crime_by_lsoa`
+GROUP BY 1
+ORDER BY 2 DESC
+LIMIT 5
+
+LondonBorough	  Total
+Westminster	    455028
+Lambeth	        292178
+Southwark	      278809
+Camden	        275147
+Newham	        262024
+
+
+### 10) What are the London boroughs with the lowest crime numbers? ###
+SELECT
+  borough AS LondonBorough,
+  SUM(value) AS Total
+FROM
+  `bigquery-public-data.london_crime.crime_by_lsoa`
+GROUP BY 1
+ORDER BY 2 ASC
+LIMIT 5
+
+LondonBorough	        Total
+City of London	      780
+Kingston upon Thames	89306
+Richmond upon Thames	96771
+Sutton	              100987
+Bexley	              114136
+
+
+### OTHER QUESTIONS ###
 
 
 # What are the top major category crimes in the borough of Ealing?
@@ -206,101 +302,5 @@ Other Notifiable Offences	66
 Sexual Offences	0
 Fraud or Forgery	0
 
-
-
-# Minor cateogry crimes per subregion
-SELECT minor_category,
-        sum(value),
-CASE
-WHEN borough IN ('Camden', 'City of London', 'Islington', 'Kensington and Chelsea', 'Lambeth', 'Southwark', 'Westminster') THEN 'Central'
-WHEN borough IN ('Barking and Dagenham', 'Bexley', 'Greenwich', 'Hackney', 'Havering', 'Lewisham', 'Newham', 'Redbridge', 'Tower Hamlets', 'Waltham Forest') THEN 'East'
-WHEN borough IN ('Barnet', 'Enfield', 'Haringey') THEN 'North'
-WHEN borough IN ('Bromley', 'Croydon', 'Kingston upon Thames', 'Merton', 'Sutton', 'Wandsworth') THEN 'South'
-WHEN borough IN ('Brent', 'Ealing', 'Hammersmith and Fulham', 'Harrow', 'Hillingdon', 'Hounslow', 'Richmond upon Thames') THEN 'West'
-ELSE NULL
-END AS subregion
-FROM `bigquery-public-data.london_crime.crime_by_lsoa`
-GROUP BY 1,3
-ORDER BY 1 ASC, 2 DESC
-LIMIT 10
-
-minor_category	f0_	subregion
-Assault with Injury	145881	East
-Assault with Injury	97150	Central
-Assault with Injury	91916	West
-Assault with Injury	73010	South
-Assault with Injury	43044	North
-Burglary in Other Buildings	73518	East
-Burglary in Other Buildings	66660	Central
-Burglary in Other Buildings	48672	South
-Burglary in Other Buildings	48347	West
-Burglary in Other Buildings	25814	North
-
-
-
-# Major cateogry crimes per subregion
-SELECT major_category,
-        sum(value),
-CASE
-WHEN borough IN ('Camden', 'City of London', 'Islington', 'Kensington and Chelsea', 'Lambeth', 'Southwark', 'Westminster') THEN 'Central'
-WHEN borough IN ('Barking and Dagenham', 'Bexley', 'Greenwich', 'Hackney', 'Havering', 'Lewisham', 'Newham', 'Redbridge', 'Tower Hamlets', 'Waltham Forest') THEN 'East'
-WHEN borough IN ('Barnet', 'Enfield', 'Haringey') THEN 'North'
-WHEN borough IN ('Bromley', 'Croydon', 'Kingston upon Thames', 'Merton', 'Sutton', 'Wandsworth') THEN 'South'
-WHEN borough IN ('Brent', 'Ealing', 'Hammersmith and Fulham', 'Harrow', 'Hillingdon', 'Hounslow', 'Richmond upon Thames') THEN 'West'
-ELSE NULL
-END AS subregion
-FROM `bigquery-public-data.london_crime.crime_by_lsoa`
-GROUP BY 1,3
-ORDER BY 1 ASC, 2 DESC
-LIMIT 10
-
-major_category	f0_	subregion
-Burglary	220831	East
-Burglary	159573	West
-Burglary	152615	Central
-Burglary	125867	South
-Burglary	95407	North
-Criminal Damage	202048	East
-Criminal Damage	131115	West
-Criminal Damage	117682	Central
-Criminal Damage	114310	South
-Criminal Damage	65783	North
-
-
-
-# What are the London boroughs with the highest crime numbers?
-SELECT
-  borough,
-  SUM(value)
-FROM
-  `bigquery-public-data.london_crime.crime_by_lsoa`
-GROUP BY 1
-ORDER BY 2 DESC
-LIMIT 5
-
-borough	f0_
-Westminster	455028
-Lambeth	292178
-Southwark	278809
-Camden	275147
-Newham	262024
-
-
-
-# What are the London boroughs with the lowest crime numbers?
-SELECT
-  borough,
-  SUM(value)
-FROM
-  `bigquery-public-data.london_crime.crime_by_lsoa`
-GROUP BY 1
-ORDER BY 2 ASC
-LIMIT 5
-
-borough	f0_
-City of London	780
-Kingston upon Thames	89306
-Richmond upon Thames	96771
-Sutton	100987
-Bexley	114136
+#### CONCLUSIONS / INSIGHTS #####
 
