@@ -1,21 +1,49 @@
+##### DATASET #####
+
 The London Crime Data dataset is a large dataset that contains information on over 13 million crimes that took place in London between 2008 and 2016. 
 The dataset is available for download from Kaggle.com.
 
+##### ADDING 2 NEW COLUMNS "subregion" AND "season" ######
 
-QUESITONS
-1) Which London boroughs were included? How many in total?
-2) What are the different major category crimes included in this table?
-3) What are the different minor category crimes included in this table?
-4) What are the most common crime categories in London?
-5) What are the crime trends in London over time?
-6) What's total number of crimes in London per borough/per year?
+SELECT *,
+  CASE
+    WHEN borough IN ('Camden', 'City of London', 'Islington', 'Kensington and Chelsea', 'Lambeth', 'Southwark', 'Westminster') THEN 'Central'
+    WHEN borough IN ('Barking and Dagenham', 'Bexley', 'Greenwich', 'Hackney', 'Havering', 'Lewisham', 'Newham', 'Redbridge', 'Tower Hamlets', 'Waltham Forest') THEN 'East'
+    WHEN borough IN ('Barnet', 'Enfield', 'Haringey') THEN 'North'
+    WHEN borough IN ('Bromley', 'Croydon', 'Kingston upon Thames', 'Merton', 'Sutton', 'Wandsworth') THEN 'South'
+    WHEN borough IN ('Brent', 'Ealing', 'Hammersmith and Fulham', 'Harrow', 'Hillingdon', 'Hounslow', 'Richmond upon Thames') THEN 'West'
+    ELSE NULL
+  END AS subregion,
+  CASE
+    WHEN CAST(month AS STRING) IN ('12', '1', '2') THEN 'Winter'
+    WHEN CAST(month AS STRING) IN ('3', '4', '5') THEN 'Spring'
+    WHEN CAST(month AS STRING) IN ('6', '7', '8') THEN 'Summer'
+    WHEN CAST(month AS STRING) IN ('9', '10', '11') THEN 'Autumn'
+    ELSE NULL
+  END AS season
+FROM `bigquery-public-data.london_crime.crime_by_lsoa`
+LIMIT 10;
+
+The objective of this SQL query is to enhance the dataset by adding two new columns: subregion and season. 
+The subregion column will categorise London boroughs into five regions (Central, East, North, South, and West), 
+and the season column will categorise months into four seasons (Winter, Spring, Summer, and Autumn). 
+This was achieved this by using the CASE statement to apply conditions and map boroughs to their respective subregions and months to their corresponding seasons.
+
+##### INITIAL QUESTIONS #####
+
+# 1) Which London boroughs were included? How many in total?
+# 2) What are the different major category crimes included in this table?
+# 3) What are the different minor category crimes included in this table?
+# 4) What are the most common crime categories in London?
+# 5) What are the crime trends in London over time?
+# 6) What's total number of crimes in London per borough/per year?
 7) What's the total number of minor category crimes per subregion?
 8) What's the total number of major category crimes per subregion?
-9) #What are the London boroughs with the highest crime numbers?
-10) #What are the London boroughs with the lowest crime numbers?
+9) What are the London boroughs with the highest crime numbers?
+10) What are the London boroughs with the lowest crime numbers?
 
 
-# Which London boroughs were included? How many in total?
+### 1) Which London boroughs were included? How many in total? ###
 SELECT DISTINCT(borough) 
 FROM `bigquery-public-data.london_crime.crime_by_lsoa`
 ORDER BY 1 ASC
@@ -26,100 +54,47 @@ Kingston upon Thames, Lambeth, Lewisham, Merton, Newham, Redbridge, Richmond upo
 Waltham Forest, Wandsworth, Westminster
 
 
-
-# Adding a new column "subregion" to the table, to be able to classify each London borough:
-SELECT *,
-CASE
-WHEN borough IN ('Camden', 'City of London', 'Islington', 'Kensington and Chelsea', 'Lambeth', 'Southwark', 'Westminster') THEN 'Central'
-WHEN borough IN ('Barking and Dagenham', 'Bexley', 'Greenwich', 'Hackney', 'Havering', 'Lewisham', 'Newham', 'Redbridge', 'Tower Hamlets', 'Waltham Forest') THEN 'East'
-WHEN borough IN ('Barnet', 'Enfield', 'Haringey') THEN 'North'
-WHEN borough IN ('Bromley', 'Croydon', 'Kingston upon Thames', 'Merton', 'Sutton', 'Wandsworth') THEN 'South'
-WHEN borough IN ('Brent', 'Ealing', 'Hammersmith and Fulham', 'Harrow', 'Hillingdon', 'Hounslow', 'Richmond upon Thames') THEN 'West'
-ELSE NULL
-END AS subregion
-FROM `bigquery-public-data.london_crime.crime_by_lsoa`
-LIMIT 10;
-
-
-
-# What are the different major category crimes included in this table?
+### 2) What are the different major category crimes included in this table? ###
 SELECT DISTINCT(major_category) FROM `bigquery-public-data.london_crime.crime_by_lsoa` 
 
-1: Sexual Offences
-2: Violence Against the Person
-3: Drugs
-4: Theft and Handling
-5: Other Notifiable Offences
-6: Robbery
-7: Fraud or Forgery
-8: Criminal Damage
-9: Burglary
+9: Sexual Offences, Violence Against the Person, Drugs, Theft and Handling, Other Notifiable Offences, Robbery, Fraud or Forgery,
+Criminal Damage, Burglary
 
 
-
-# What are the different minor category crimes included in this table?
+### 3) What are the different minor category crimes included in this table? ###
 SELECT DISTINCT(minor_category) FROM `bigquery-public-data.london_crime.crime_by_lsoa` LIMIT 1000
 
-1: Rape
-2: Murder
-3: Harassment
-4: Other Drugs
-5: Other Theft
-6: Other Sexual
-7: Wounding/GBH
-8: Common Assault
-9: Going Equipped
-10: Other violence
-11: Drug Trafficking
-12: Offensive Weapon
-13: Other Notifiable
-14: Theft From Shops
-15: Business Property
-16: Personal Property
-17: Counted per Victim
-18: Other Theft Person
-19: Assault with Injury
-20: Possession Of Drugs
-21: Handling Stolen Goods
-22: Other Criminal Damage
-23: Other Fraud & Forgery
-24: Burglary in a Dwelling
-25: Theft From Motor Vehicle
-26: Burglary in Other Buildings
-27: Criminal Damage To Dwelling
-28: Theft/Taking of Pedal Cycle
-29: Theft/Taking Of Motor Vehicle
-30: Criminal Damage To Motor Vehicle
-31: Criminal Damage To Other Building
-32: Motor Vehicle Interference & Tampering
+32: Rape, Murder, Harassment, Other Drugs, Other Theft, Other Sexual, Wounding/GBH, Common Assault, Going Equipped, Other violence,
+Drug Trafficking, Offensive Weapon, Other Notifiable, Theft From Shops, Business Property, Personal Property, Counted per Victim,
+Other Theft Person, Assault with Injury, Possession Of Drugs, Handling Stolen Goods, Other Criminal Damage, Other Fraud & Forgery,
+Burglary in a Dwelling, Theft From Motor Vehicle, Burglary in Other Buildings, Criminal Damage To Dwelling, Theft/Taking of Pedal Cycle,
+Theft/Taking Of Motor Vehicle, Criminal Damage To Motor Vehicle, Criminal Damage To Other Building, Motor Vehicle Interference & Tampering
 
 
-
-# What are the most common crime categories in London?
-SELECT major_category, COUNT(*) AS total_crimes
+### 4) What are the most common crime categories in London? ###
+SELECT major_category AS MajorCategory, SUM(value) AS TotalCrimes
 FROM `bigquery-public-data.london_crime.crime_by_lsoa`
-GROUP BY major_category
-ORDER BY total_crimes DESC;
+GROUP BY 1
+ORDER BY 2 DESC;
 
-major_category	total_crimes
-Theft and Handling	3966300
-Violence Against the Person	3171744
-Criminal Damage	2069172
-Drugs	1179468
-Burglary	1043604
-Robbery	939384
-Other Notifiable Offences	776304
-Fraud or Forgery	236520
-Sexual Offences	108108
+MajorCategory	                    TotalCrimes
+Theft and Handling	                  2661861
+Violence Against the Person	         1558081
+Burglary	                             754293
+Criminal Damage	                      630938
+Drugs	                                470765
+Robbery	                              258873
+Other Notifiable Offences	            106349
+Fraud or Forgery	                       5325
+Sexual Offences	                        1273
 
-
-
-# What are the crime trends in London over time (2008-2016)?
-SELECT year, sum(value) FROM `bigquery-public-data.london_crime.crime_by_lsoa` 
+### 5) What are the crime trends in London over time (2008-2016)? ###
+SELECT year AS Year, sum(value) AS Total
+FROM `bigquery-public-data.london_crime.crime_by_lsoa` 
 GROUP BY 1
 ORDER BY 1 ASC
 
-year	f0_
+Year	Total
 2008	738641
 2009	717214
 2010	715324
@@ -130,42 +105,23 @@ year	f0_
 2015	711624
 2016	736121
 
-# Total number of crimes in London per borough
-SELECT borough, count(value) FROM `bigquery-public-data.london_crime.crime_by_lsoa` 
-GROUP BY borough
-ORDER BY 2 DESC
-LIMIT 10
 
-borough	f0_
-Croydon	602100
-Barnet	572832
-Ealing	549396
-Bromley	523908
-Lambeth	519048
-Enfield	511164
-Wandsworth	498636
-Brent	490644
-Lewisham	485136
-Southwark	483300
-
-
-
-# Total number of crimes in London per borough, per year
-SELECT borough, year, sum(value) 
+### 6) Total number of crimes in London per borough, per year ###
+SELECT borough AS LondonBorough, year, sum(value) AS Total
 FROM `bigquery-public-data.london_crime.crime_by_lsoa` 
 GROUP BY 1, 2
 ORDER BY 1, 2 ASC
 
-borough	year	f0_
-Barking and Dagenham	2008	17656
-Barking and Dagenham	2009	17713
-Barking and Dagenham	2010	17130
-Barking and Dagenham	2011	16686
-Barking and Dagenham	2012	15990
-Barking and Dagenham	2013	15759
-Barking and Dagenham	2014	15426
-Barking and Dagenham	2015	16346
-Barking and Dagenham	2016	16741
+LondonBorough	                year           Total
+Barking and Dagenham	         2008	          17656
+Barking and Dagenham	         2009	          17713
+Barking and Dagenham	         2010	          17130
+Barking and Dagenham	         2011	          16686
+Barking and Dagenham	         2012	          15990
+Barking and Dagenham	         2013	          15759
+Barking and Dagenham	         2014	          15426
+Barking and Dagenham	         2015	          16346
+Barking and Dagenham	         2016	          16741
 
 
 
