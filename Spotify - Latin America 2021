@@ -1,3 +1,32 @@
+##### DATASET #####
+
+Spotify Charts: https://charts.spotify.com/charts/overview/global 
+
+top 200 weekly songs for each Latin American country during 2021
+
+
+##### VARIABLES #####
+
+# country: one of the 17 selected countries from Latin America - Argentina, Bolivia, Brazil, Chile, Colombia, Costa Rica, Dominican Republic, 
+  Ecuador, El Salvador, Guatemala, Honduras, Mexico, Nicaragua, Panama, Paraguay, Peru, Uruguay
+# iso_code: 2-letter country code
+# continent: South America, Central America, North America
+# language: PT for Portuguese and SP for Spanish
+# rank: rank
+# total_streams: number of the total streams in 2021
+# weeks: number of weeks each song appeared in the top 200 weekly rank 
+# track_id: unique track id from Spotify
+# artist_names: artist names
+# track_name: track name
+# source: label/distributor
+
+
+##### INITIAL QUESTIONS #####
+
+### 1) What's the total number of streaming per country and the percentage?
+
+# What were the top 100 songs in Latin America in 2021?
+
 
 # What are the top 100 songs in Latin America? Which countries had these songs in their most streamed tracks in 2021?
 SELECT
@@ -13,7 +42,7 @@ ORDER BY
   2 DESC
 LIMIT 100;
 
-# What's the total number of streaming per country and the percentage?
+# 1) What's the total number of streaming per country and the percentage? #
 SELECT
   country,
   SUM(total_streams) AS Total,
@@ -25,6 +54,27 @@ GROUP BY
   country
 ORDER BY 2
 DESC
+
+Pais	                 Total    	      Percentage
+Brazil	           16331934883	            34.89
+Mexico	           12302424261	            26.28
+Argentina	          5341057220	            11.41
+Chile	              4399463212	              9.4
+Peru	              1942019190	             4.15
+Colombia	          1754748165	             3.75
+Ecuador	             762745926	             1.63
+Paraguay	           726885911	             1.55
+Guatemala	           706442018	             1.51
+Costa Rica	         495808438	             1.06
+Bolivia	             378594619	             0.81
+Uruguay	             366598184	             0.78
+El Salvador	         339627979	             0.73
+Dominican Republic	 303674790	             0.65
+Panama	             289573221	             0.62
+Honduras	           244592946	             0.52
+Nicaragua	           127304445	             0.27
+
+
 
 # Top 100 songs in Brazil
 SELECT
